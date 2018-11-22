@@ -3,8 +3,8 @@ import {StyleSheet, Text, View, BackHandler} from 'react-native';
 import { BarCodeScanner, Permissions } from 'expo';
 import FaceReco from "./FaceReco";
 const Colors = require('./Colors');
-const UID = '/*uid*/';
 const md5 = require('md5');
+
 export default class App extends React.Component {
     state = {
         hasCameraPermission: null,

@@ -1,7 +1,9 @@
 import React from 'react';
 import {Button, View, BackHandler, StyleSheet, ActivityIndicator} from 'react-native';
-import App from './App';
+import App from './App'
 import {Permissions, ImagePicker} from 'expo';
+import axios from 'axios';
+import Vote from './Vote';
 
 const Colors = require('./Colors');
 
@@ -36,40 +38,47 @@ export default class FaceReco extends React.Component {
     _handlePermissions = async () => {
         let {statusCamera} = await Permissions.askAsync(Permissions.CAMERA);
         let {statusCameraRoll} = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        if(statusCamera !== 'granted' || statusCameraRoll !== 'granted' ){
+        if (statusCamera !== 'granted' || statusCameraRoll !== 'granted') {
             alert("Permissions Required!");
             await setTimeout(this._handlePermissions, 500);
         }
-        else{
+        else {
             this.setState({hasCameraPermission: true});
         }
     };
 
     snap = async () => {
+        this.setState({uploading: true});
         await this._handlePermissions;
         let img = await ImagePicker.launchCameraAsync({});
+        //console.log(img);
         this.setState({tokenImage: img});
         await this._handleImagePicked(img);
     };
 
     _handleImagePicked = async (pickerResult) => {
-        let uploadResponse, uploadResult;
+        let uploadResult;
         try {
             this.setState({
                 uploading: true
             });
 
             if (!pickerResult.cancelled) {
-                uploadResponse = await uploadImageAsync(pickerResult.uri);
-                uploadResult = await uploadResponse.json();
-
-                this.setState({
-                    image: uploadResult.location
-                });
+                //alert(pickerResult.uri);
+                uploadResult = await this.uploadImageAsync(pickerResult, this.props.adhaar);
+                //console.log("Printed");
+                console.log(uploadResult);
+                if (uploadResult.ACK !== 'SUCCESS') {
+                    alert('Upload failed, sorry')
+                }
+                else {
+                    //alert(uploadResult.id);
+                    this.setState({image: uploadResult.ACK, page: 'Vote', id: uploadResult.id});
+                }
             }
         } catch (e) {
-            console.log({uploadResponse});
-            console.log({uploadResult});
+            //console.log({uploadResponse});
+            //console.log({uploadResult});
             console.log({e});
             alert('Upload failed, sorry :(');
         } finally {
@@ -77,6 +86,24 @@ export default class FaceReco extends React.Component {
                 uploading: false
             });
         }
+    };
+
+    uploadImageAsync = async (photo, photoName, config) => {
+        let apiUrl = 'http://172.31.75.200:8000/upload';
+        let uriParts = photo.uri.split('.');
+        let fileType = uriParts[uriParts.length - 1];
+        let formData = new FormData();
+        formData.append('file', {
+            uri: photo.uri,
+            name: `${photoName}.${fileType}`,
+            type: `image/${fileType}`,
+        });
+        return axios.post(apiUrl, formData)
+            .then(response => {return response.data})
+            .catch(e => {
+                console.log(e)
+            })
+
     };
 
 
@@ -88,20 +115,17 @@ export default class FaceReco extends React.Component {
                 </View>
             );
         }
-        else if ( this.state.page === 'FaceReco' && this.state.uploading) {
+        else if (this.state.page === 'FaceReco' && this.state.uploading) {
             return (
                 <View
                     style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
-                    <ActivityIndicator color="#fff" size="large" />
+                    <ActivityIndicator color="#fff" size="large"/>
                 </View>
             );
         }
-        else if (this.state.page === 'Vote') {
+        else if (this.state.page === 'Vote' && this.state.image === 'SUCCESS') {
             return (
-                <View
-                    style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
-                    <ActivityIndicator color="#fff" size="large" />
-                </View>
+                <Vote adhaar={this.props.adhaar} id={this.state.id}/>
             );
         }
         else {
@@ -113,28 +137,6 @@ export default class FaceReco extends React.Component {
 
 }
 
-async function uploadImageAsync(uri) {
-    let apiUrl = 'https://file-upload-example-backend-dkhqoilqqn.now.sh/upload';
-    let uriParts = uri.split('.');
-    let fileType = uriParts[uriParts.length - 1];
-    let formData = new FormData();
-    formData.append('photo', {
-        uri,
-        name: `photo.${fileType}`,
-        type: `image/${fileType}`,
-    });
-
-    let options = {
-        method: 'POST',
-        body: formData,
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'multipart/form-data',
-        },
-    };
-
-    return fetch(apiUrl, options);
-}
 
 const styles = StyleSheet.create({
     container: {
