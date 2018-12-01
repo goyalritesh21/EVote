@@ -14,6 +14,7 @@ export default class VerifyOtp extends React.Component {
     }
 
     componentDidMount() {
+        // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', this.goBack.bind(this, this.props.from));
     }
 

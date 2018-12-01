@@ -1,7 +1,8 @@
 import React from 'react';
 import {StyleSheet, Text, View, BackHandler} from 'react-native';
-import { BarCodeScanner, Permissions } from 'expo';
+import {BarCodeScanner, Permissions} from 'expo';
 import FaceReco from "./FaceReco";
+
 const Colors = require('./Colors');
 const md5 = require('md5');
 
@@ -9,7 +10,7 @@ export default class App extends React.Component {
     state = {
         hasCameraPermission: null,
         page: 'App',
-        adhaar : null
+        adhaar: null
     };
 
     handleClick = (screen) => {
@@ -17,16 +18,18 @@ export default class App extends React.Component {
     };
 
     componentDidMount() {
+        // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', BackHandler.exitApp);
     }
+
     async componentWillMount() {
-        const { status } = await Permissions.askAsync(Permissions.CAMERA);
+        const {status} = await Permissions.askAsync(Permissions.CAMERA);
         this.setState({hasCameraPermission: status === 'granted'});
     }
-    
-    handleBarCodeScanned = ({ type, data }) => {
+
+    handleBarCodeScanned = ({type, data}) => {
         let uid = (data.split("uid=")[1]).split('"')[1];
-        if(uid === null || uid === undefined){
+        if (uid === null || uid === undefined) {
             alert("UID not found");
             return;
         }
@@ -35,20 +38,21 @@ export default class App extends React.Component {
     };
 
     render() {
-        const { hasCameraPermission } = this.state;
+        const {hasCameraPermission} = this.state;
         if (hasCameraPermission === null) {
             return <Text>Requesting for camera permission</Text>;
         }
         if (hasCameraPermission === false) {
             return <Text>No access to camera</Text>;
         }
-        if(this.state.page === 'App') {
+        if (this.state.page === 'App') {
             return (
                 <View style={{flex: 1}}>
                     <View style={styles.textStyleContainer}>
                         <Text style={styles.textStyle}>Welcome to IVOTE</Text>
                         <Text style={styles.textStyle}>Scan Barcode on Adhaar Card.</Text>
                     </View>
+                    <View style={{backgroundColor: Colors.separator, height: 1, marginRight: 25, marginLeft: 25}}/>
                     <View style={{
                         flex: 2,
                         margin: 60,
@@ -64,9 +68,9 @@ export default class App extends React.Component {
                 </View>
             );
         }
-        else{
-            return(
-              <FaceReco from={'App'} adhaar={this.state.adhaar}/>
+        else {
+            return (
+                <FaceReco from={'App'} adhaar={this.state.adhaar}/>
             );
         }
     }
