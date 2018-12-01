@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, View, BackHandler, StyleSheet, ActivityIndicator} from 'react-native';
+import {Button, View, BackHandler, StyleSheet, ActivityIndicator, Text} from 'react-native';
 import App from './App'
 import {Permissions, ImagePicker} from 'expo';
 import axios from 'axios';
@@ -23,6 +23,7 @@ export default class FaceReco extends React.Component {
     }
 
     async componentDidMount() {
+        // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', this.goBack.bind(this, this.props.from));
     }
 
@@ -51,7 +52,6 @@ export default class FaceReco extends React.Component {
         this.setState({uploading: true});
         await this._handlePermissions;
         let img = await ImagePicker.launchCameraAsync({});
-        //console.log(img);
         this.setState({tokenImage: img});
         await this._handleImagePicked(img);
     };
@@ -64,21 +64,15 @@ export default class FaceReco extends React.Component {
             });
 
             if (!pickerResult.cancelled) {
-                //alert(pickerResult.uri);
                 uploadResult = await this.uploadImageAsync(pickerResult, this.props.adhaar);
-                //console.log("Printed");
-                console.log(uploadResult);
                 if (uploadResult.ACK !== 'SUCCESS') {
                     alert('Upload failed, sorry')
                 }
                 else {
-                    //alert(uploadResult.id);
                     this.setState({image: uploadResult.ACK, page: 'Vote', id: uploadResult.id});
                 }
             }
         } catch (e) {
-            //console.log({uploadResponse});
-            //console.log({uploadResult});
             console.log({e});
             alert('Upload failed, sorry :(');
         } finally {
@@ -93,15 +87,18 @@ export default class FaceReco extends React.Component {
         let uriParts = photo.uri.split('.');
         let fileType = uriParts[uriParts.length - 1];
         let formData = new FormData();
+        // noinspection JSCheckFunctionSignatures
         formData.append('file', {
             uri: photo.uri,
             name: `${photoName}.${fileType}`,
             type: `image/${fileType}`,
         });
         return axios.post(apiUrl, formData)
-            .then(response => {return response.data})
-            .catch(e => {
-                console.log(e)
+            .then(response => {
+                return response.data
+            })
+            .catch((e) => {
+                console.log(e);
             })
 
     };
@@ -111,7 +108,24 @@ export default class FaceReco extends React.Component {
         if (this.state.page === 'FaceReco' && !this.state.uploading) {
             return (
                 <View style={styles.container}>
-                    <Button title={'Launch Security Check'} onPress={this.snap}/>
+                    <View>
+                        <Text style={styles.textStyle}>Welcome to IVote</Text>
+                        <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                        <View style={{
+                            backgroundColor: '#ffffff',
+                            height: 40,
+                            justifyContent: 'center',
+                            marginTop: 16,
+                            marginBottom: 16,
+                            bottom: 0
+                        }}>
+                            <Button style={styles.button}
+                                    title={'Launch Security Check'}
+                                    onPress={this.snap}
+                            />
+                        </View>
+                    </View>
+
                 </View>
             );
         }
@@ -125,7 +139,7 @@ export default class FaceReco extends React.Component {
         }
         else if (this.state.page === 'Vote' && this.state.image === 'SUCCESS') {
             return (
-                <Vote adhaar={this.props.adhaar} id={this.state.id}/>
+                <Vote adhaar={this.props.adhaar} my_id={this.state.id}/>
             );
         }
         else {
@@ -147,12 +161,22 @@ const styles = StyleSheet.create({
     },
     textStyle: {
         textShadowOffset: {
-            width: 2,
-            height: 2,
+            width: 1,
+            height: 1,
         },
-        fontSize: 20,
+        fontSize: 35,
         fontWeight: 'bold',
         color: Colors.teal
+    },
+    button: {
+        height: 40,
+        color: Colors.teal,
+        width: 120,
+        right: 0,
+        backgroundColor: Colors.teal,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 5,
     },
     maybeRenderUploading: {
         alignItems: 'center',

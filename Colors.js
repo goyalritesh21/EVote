@@ -5,7 +5,8 @@ const colors = {
     teal: '#008489',
     StatusBarTeal: '#066f73',
     separator: '#ebebeb',
-    statusBarLight: '#f0f0f0'
+    statusBarLight: '#f0f0f0',
+    normal: '#484848',
 };
 
 module.exports = colors;
