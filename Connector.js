@@ -4,9 +4,9 @@ api = {
     getActivities(config) {
         fetch('http://172.31.75.200:8000/categories')
             .then(data => data.json())
-            .then(cats => {
-                for (const cat in cats) {
-                    this.activities.push(cats[cat])
+            .then(parties => {
+                for (const party in parties) {
+                    this.activities.push(parties[party])
                 }
                 config.onSuccess(this.activities);
             })
