@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button, View, BackHandler, StyleSheet, ActivityIndicator, Text} from 'react-native';
-import App from './App'
 import {Permissions, ImagePicker} from 'expo';
 import axios from 'axios';
-import Vote from './Vote';
+import Selector from "./Selector";
+import LoadList from "./LoadList";
 
 const Colors = require('./Colors');
 
@@ -25,10 +25,6 @@ export default class FaceReco extends React.Component {
     async componentDidMount() {
         // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', this.goBack.bind(this, this.props.from));
-    }
-
-    async componentWillMount() {
-
     }
 
     goBack = (screen) => {
@@ -69,7 +65,7 @@ export default class FaceReco extends React.Component {
                     alert('Upload failed, sorry')
                 }
                 else {
-                    this.setState({image: uploadResult.ACK, page: 'Vote', id: uploadResult.id});
+                    this.setState({image: uploadResult.ACK, page: 'LoadList', id: uploadResult.id});
                 }
             }
         } catch (e) {
@@ -82,7 +78,7 @@ export default class FaceReco extends React.Component {
         }
     };
 
-    uploadImageAsync = async (photo, photoName, config) => {
+    uploadImageAsync = async (photo, photoName) => {
         let apiUrl = 'http://172.31.75.200:8000/upload';
         let uriParts = photo.uri.split('.');
         let fileType = uriParts[uriParts.length - 1];
@@ -133,18 +129,19 @@ export default class FaceReco extends React.Component {
             return (
                 <View
                     style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
+                    <Text style={styles.eventName2}>Verifying</Text>
                     <ActivityIndicator color="#fff" size="large"/>
                 </View>
             );
         }
-        else if (this.state.page === 'Vote' && this.state.image === 'SUCCESS') {
+        else if (this.state.page === 'LoadList' && this.state.image === 'SUCCESS') {
             return (
-                <Vote adhaar={this.props.adhaar} my_id={this.state.id}/>
-            );
+                <LoadList adhaar={this.props.adhaar} my_id={this.state.id} verified={true} from={'App'}/>
+            )
         }
         else {
             return (
-                <App/>
+                <Selector from={'App'} adhaar={this.props.adhaar}/>
             );
         }
     }
@@ -164,9 +161,10 @@ const styles = StyleSheet.create({
             width: 1,
             height: 1,
         },
-        fontSize: 35,
+        fontSize: 30,
         fontWeight: 'bold',
-        color: Colors.teal
+        color: Colors.teal,
+        margin: 20
     },
     button: {
         height: 40,
@@ -182,6 +180,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0,0,0,0.4)',
         justifyContent: 'center',
+    },
+    eventName2: {
+        color: Colors.teal,
+        fontSize: 25,
+        paddingTop: 8,
+        paddingBottom: 10,
     },
 
 });

@@ -1,6 +1,17 @@
 import React from 'react';
-import {StyleSheet, Text, View, ScrollView, BackHandler, ActivityIndicator, Button, Alert} from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    ScrollView,
+    BackHandler,
+    ActivityIndicator,
+    Button,
+    Alert,
+    Dimensions
+} from 'react-native';
 import PartyCard from "./PartyCard";
+import App from "./App";
 
 const Colors = require('./Colors');
 const md5 = require('md5');
@@ -14,16 +25,30 @@ export default class LoadList extends React.Component {
         loading: true,
     };
 
-    handleClick = (screen) => {
-        this.setState({page: screen});
-    };
-
-    componentDidMount() {
-        // noinspection JSCheckFunctionSignatures
-        BackHandler.addEventListener('hardwareBackPress', () => {
+    handleClick = async (screen) => {
+        if(this.state.page === 'App'){
             BackHandler.exitApp();
             return true;
-        });
+        }
+        Alert.alert(
+            'IVote',
+            'You will lose the progess?',
+            [
+                {
+                    text: 'Yes',
+                    onPress: () => {this.setState({page: screen});}
+                },
+                {
+                    text: 'Cancel',
+                    onPress: () => {this.setState();}
+                }
+            ]
+        );
+    };
+
+    async componentDidMount() {
+        // noinspection JSCheckFunctionSignatures
+        BackHandler.addEventListener('hardwareBackPress', this.handleClick.bind(this, this.props.from));
         if (this.state.parties.length === 0) {
             api.getActivities({
                 onSuccess: (value) => {
@@ -73,62 +98,101 @@ export default class LoadList extends React.Component {
                                    this.setState({voted: true, party: party});
                                }
                            }
-                               ButtonDisabled={this.state.voted}
-                               />
-                               )
-                           }
-                           return cards;
-        };
-
-        render() {
-            if (this.state.loading) {
-            return (
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white'}}>
-            <ActivityIndicator size={'large'} color={Colors.teal}/>
-            </View>
+                           ButtonDisabled={this.state.voted}
+                />
             )
         }
-            else if (this.state.page === 'LoadList' && this.props.adhaar !== null) {
-            return (
-            <View>
-            <ScrollView contentContainerStyle={{backgroundColor: 'white'}}>
-            {this.returnCards()}
-            </ScrollView>
-            </View>
-            );
-        }
-            else {
-            return (
-            <View
-            style={[StyleSheet.absoluteFill, styles.maybeRenderUploading]}>
-            <ActivityIndicator color={Colors.teal} size="large"/>
-            </View>
-            );
-        }
-        }
-        }
+        return cards;
+    };
 
-        const
-        styles = StyleSheet.create({
-            container: {
+    render() {
+        if (this.state.loading) {
+            return (
+                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white'}}>
+                    <Text style={styles.eventName2}>Verifying</Text>
+                    <ActivityIndicator size={'large'} color={Colors.teal}/>
+                </View>
+            )
+        }
+        else if (this.state.page === 'LoadList' && this.props.adhaar !== null) {
+            return (
+                <View>
+                    <View style={styles.eventCard}>
+                        <View>
+                            <Text style={styles.eventName2}>Parties in your Constituency</Text>
+                            <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                height: 20,
+                                marginTop: 16,
+                                marginBottom: 16,
+                                bottom: 0
+                            }}>
+                            </View>
+                        </View>
+                    </View>
+                    <ScrollView contentContainerStyle={{backgroundColor: 'white'}}>
+                        {this.returnCards()}
+                    </ScrollView>
+                </View>
+            );
+        }
+        else {
+            return (
+                <App/>
+            );
+        }
+    }
+}
+
+const
+    styles = StyleSheet.create({
+        container: {
             flex: 1,
             backgroundColor: '#fff',
             alignItems: 'center',
             justifyContent: 'center',
         },
-            textStyleContainer: {
+        textStyleContainer: {
             flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
         },
-            textStyle: {
+        eventName: {
+            color: Colors.teal,
+            fontSize: 30,
+            paddingTop: 16,
+            paddingBottom: 0,
+        },
+        eventCard: {
+            backgroundColor: '#ffffff',
+            paddingLeft: 16,
+            paddingRight: 16,
+            marginRight: 8,
+            marginBottom: 16,
+            marginTop: 16,
+            marginLeft: 8,
+            elevation: 4,
+            borderRadius: 4,
+            width: Dimensions.get('window').width - 32,
+            height: 200,
+            justifyContent: 'center'
+        },
+        eventName2: {
+            color: Colors.teal,
+            fontSize: 25,
+            fontWeight: 'bold',
+            paddingTop: 8,
+            paddingBottom: 0,
+        },
+        textStyle: {
             fontSize: 20,
             fontWeight: 'bold',
             color: Colors.teal
         },
-            maybeRenderUploading: {
+        maybeRenderUploading: {
             alignItems: 'center',
             backgroundColor: 'rgba(0,0,0,0.4)',
             justifyContent: 'center',
         },
-        });
+    });
