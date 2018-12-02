@@ -1,8 +1,9 @@
 api = {
     activities: [],
+    count: [],
     url: 'http://172.31.75.200:8000/',
     getActivities(config) {
-        fetch('http://172.31.75.200:8000/categories')
+        fetch(this.url + 'categories')
             .then(data => data.json())
             .then(parties => {
                 for (const party in parties) {
@@ -14,6 +15,20 @@ api = {
                 config.onFailed(err);
             })
     },
+    getCount(config) {
+        fetch(this.url + 'livecount')
+            .then(data => data.json())
+            .then(liveresult => {
+                this.count = [];
+                for (const party in liveresult) {
+                    this.count.push(liveresult[party]);
+                }
+                config.onSuccess(this.count);
+            })
+            .catch(err => {
+                config.onFailed(err);
+            })
+    }
 
 };
 

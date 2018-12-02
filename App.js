@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, Text, View, BackHandler} from 'react-native';
 import {BarCodeScanner, Permissions} from 'expo';
-import FaceReco from "./FaceReco";
+import Selector from "./Selector";
 
 const Colors = require('./Colors');
 const md5 = require('md5');
@@ -34,7 +34,7 @@ export default class App extends React.Component {
             return;
         }
         this.setState({adhaar: md5(uid)});
-        this.handleClick('FaceReco');
+        this.handleClick('Selector');
     };
 
     render() {
@@ -70,7 +70,7 @@ export default class App extends React.Component {
         }
         else {
             return (
-                <FaceReco from={'App'} adhaar={this.state.adhaar}/>
+                <Selector from={'App'} adhaar={this.state.adhaar}/>
             );
         }
     }
