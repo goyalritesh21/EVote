@@ -4,22 +4,34 @@ import {StyleSheet, Text, View, Dimensions} from 'react-native';
 const Colors = require('./Colors');
 
 export default class CountCard extends Component {
+    constructor(props) {
+        super(props);
+    }
 
     render() {
         return (
             <View style={styles.eventCard}>
                 <View>
-                    <Text style={styles.eventName}>{this.props.name}</Text>
+                    <Text style={styles.eventName}>{this.props.ID}</Text>
                     <View style={{backgroundColor: Colors.separator, height: 1,}}/>
                     <View style={{
                         backgroundColor: '#ffffff',
                         height: 60,
-                        alignItems: 'flex-end',
-                        marginTop: 16,
-                        marginBottom: 16,
+                        marginTop: 8,
+                        marginBottom: 8,
                         bottom: 0
                     }}>
-                        <Text style={styles.eventName}>Count: {this.props.count}</Text>
+                        <Text style={styles.eventName}>{this.props.timestamp}</Text>
+                    </View>
+                    <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                    <View style={{
+                        backgroundColor: '#ffffff',
+                        height: 40,
+                        marginTop: 8,
+                        marginBottom: 8,
+                        bottom: 0
+                    }}>
+                        <Text style={styles.eventName}>{this.props.transactionID}</Text>
                     </View>
                 </View>
             </View>
@@ -44,9 +56,9 @@ const styles = StyleSheet.create({
     },
     eventName: {
         color: Colors.teal,
-        fontSize: 30,
-        paddingTop: 16,
-        paddingBottom: 0,
+        fontSize: 20,
+        paddingTop: 8,
+        paddingBottom: 2,
     },
 
     eventCard: {
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
         elevation: 4,
         borderRadius: 4,
         width: Dimensions.get('window').width - 32,
-        height: 200,
+        height: 250,
         justifyContent: 'center'
     },
 });

@@ -3,17 +3,39 @@ import {StyleSheet, Text, View, BackHandler, Button} from 'react-native';
 import FaceReco from "./FaceReco";
 import Count from "./Count";
 import App from './App';
+import api from './Connector'
 
 const Colors = require('./Colors');
 const current = Date().now;
 export default class Selector extends React.Component {
-    state = {
-        page: 'Selector',
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            page: 'Selector',
+            voted: false
+        };
+    }
 
     async componentDidMount() {
         // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', this.goBack.bind(this, this.props.from));
+        const user = {
+            ID: this.props.adhaar
+        };
+        api.ifVoted(user, {
+            onSuccess: (res) => {
+                if (res.ACK === 'SUCCESS') {
+                    this.setState({voted: true});
+                }
+                else {
+                    this.setState({voted: false});
+                }
+            },
+            onFailed: (error) => {
+                //Alert.alert('IVote', 'Check your internet connection');
+                console.log(error);
+            }
+        })
     }
 
     goBack = (screen) => {
@@ -47,6 +69,7 @@ export default class Selector extends React.Component {
                             <Button style={styles.button}
                                     title={'Proceed to Vote'}
                                     onPress={this.proceed}
+                                    disabled={this.state.voted}
                             />
                         </View>
                         <View style={{backgroundColor: Colors.separator, height: 1,}}/>

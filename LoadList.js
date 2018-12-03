@@ -18,15 +18,18 @@ const md5 = require('md5');
 const api = require('./Connector');
 
 export default class LoadList extends React.Component {
-    state = {
-        page: 'LoadList',
-        voted: false,
-        parties: [],
-        loading: true,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            page: 'LoadList',
+            voted: false,
+            parties: [],
+            loading: true,
+        };
+    }
 
     handleClick = async (screen) => {
-        if(this.state.page === 'App'){
+        if (this.state.page === 'App') {
             BackHandler.exitApp();
             return true;
         }
@@ -36,11 +39,18 @@ export default class LoadList extends React.Component {
             [
                 {
                     text: 'Yes',
-                    onPress: () => {this.setState({page: screen});}
+                    onPress: () => {
+                        for (i = 0; i < this.state.parties.length; i++) {
+
+                        }
+                        this.setState({page: screen});
+                    }
                 },
                 {
                     text: 'Cancel',
-                    onPress: () => {this.setState();}
+                    onPress: () => {
+                        this.setState();
+                    }
                 }
             ]
         );
@@ -49,6 +59,7 @@ export default class LoadList extends React.Component {
     async componentDidMount() {
         // noinspection JSCheckFunctionSignatures
         BackHandler.addEventListener('hardwareBackPress', this.handleClick.bind(this, this.props.from));
+        this.setState({parties: []});
         if (this.state.parties.length === 0) {
             api.getActivities({
                 onSuccess: (value) => {
@@ -62,10 +73,46 @@ export default class LoadList extends React.Component {
         } else {
             this.setState({loading: false})
         }
+        const user = {
+            ID: this.props.adhaar
+        };
+        api.ifVoted(user, {
+            onSuccess: (res) => {
+                if (res.ACK === 'SUCCESS') {
+                    this.setState({voted: true});
+                }
+                else {
+                    this.setState({voted: false});
+                }
+            },
+            onFailed: (error) => {
+                //Alert.alert('IVote', 'Check your internet connection');
+                console.log(error);
+            }
+        })
     }
 
-    vote = () => {
-        this.setState({voted: true});
+    componentWillUnmount() {
+        this.setState(initialstate);
+    }
+
+    CastVote = (party) => {
+        this.setState({voted: true, party: party});
+        const obj = {
+            ID: this.props.adhaar,
+            timestamp: Date().toString(),
+            transactionID: md5(this.props.adhaar),
+            CandidateVoted: party
+        };
+        api.castVote(obj, {
+            onSuccess: (result) => {
+                this.setState({voted: true});
+            },
+            onFailed: (error) => {
+                Alert.alert('IVote', 'Check your internet connection');
+                console.log(error);
+            }
+        })
     };
     returnCards = () => {
         let cards = [];
@@ -82,11 +129,12 @@ export default class LoadList extends React.Component {
                                        [
                                            {
                                                text: 'Yes', onPress: () => {
+                                                   this.CastVote(party);
                                                    this.setState({voted: true, party: party});
                                                    Alert.alert('IVote', 'Vote Successfully recorded for\n' + party,
                                                        [{
                                                            text: 'Thank You', onPress: () => {
-                                                               BackHandler.exitApp();
+                                                               //BackHandler.exitApp();
                                                            }
                                                        }]);
                                                }
@@ -95,7 +143,7 @@ export default class LoadList extends React.Component {
                                        ],
                                        {cancelable: false}
                                    );
-                                   this.setState({voted: true, party: party});
+
                                }
                            }
                            ButtonDisabled={this.state.voted}

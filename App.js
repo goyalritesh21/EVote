@@ -7,11 +7,14 @@ const Colors = require('./Colors');
 const md5 = require('md5');
 
 export default class App extends React.Component {
-    state = {
-        hasCameraPermission: null,
-        page: 'App',
-        adhaar: null
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            hasCameraPermission: null,
+            page: 'App',
+            adhaar: null
+        };
+    }
 
     handleClick = (screen) => {
         this.setState({page: screen});

@@ -28,6 +28,46 @@ api = {
             .catch(err => {
                 config.onFailed(err);
             })
+    },
+    ifVoted(data, config) {
+        fetch(this.url + 'ifvoted', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(data => data.json())
+            .then(res => {
+                if (res.ACK !== 'SUCCESS') {
+                    config.onFailed(res);
+                    return;
+                }
+                config.onSuccess(res);
+            })
+            .catch(err => {
+                config.onFailed(err);
+            })
+    },
+    castVote(data, config) {
+        fetch(this.url + 'vote', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json;charset=UTF-8',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(data => data.json())
+            .then(res => {
+                if (res.ACK !== 'SUCCESS') {
+                    config.onFailed(res);
+                    return;
+                }
+                config.onSuccess(res);
+            })
+            .catch(err => {
+                config.onFailed(err);
+            })
     }
 
 };

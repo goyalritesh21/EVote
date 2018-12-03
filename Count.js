@@ -7,13 +7,16 @@ import CountCard from "./CountCard";
 const Colors = require('./Colors');
 
 export default class Count extends Component {
-    state = {
-        parties: [],
-        voted: false,
-        count: 0,
-        page: 'Count',
-        loading: true,
-    };
+    constructor(props) {
+        super(props);
+        this.state = {
+            parties: [],
+            voted: false,
+            count: 0,
+            page: 'Count',
+            loading: true,
+        };
+    }
 
     async componentDidMount() {
         // noinspection JSCheckFunctionSignatures
@@ -38,13 +41,64 @@ export default class Count extends Component {
         return true;
     };
 
+    setUser = () => {
+        for (let i = 0; i < this.state.parties.length; i++) {
+            if (this.props.adhaar === this.state.parties[i].ID) {
+                return (
+                    <View style={styles.eventCard}>
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                height: 80,
+                                marginTop: 16,
+                                marginBottom: 16,
+                                bottom: 0
+                            }}>
+                                <Text style={styles.eventName}>ID: {this.state.parties[i].ID}</Text>
+                            </View>
+                            <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                height: 80,
+                                marginTop: 16,
+                                marginBottom: 16,
+                                bottom: 0
+                            }}>
+                                <Text style={styles.eventName}>Timestamp: {this.state.parties[i].timestamp}</Text>
+                            </View>
+                            <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                height: 80,
+                                marginTop: 16,
+                                marginBottom: 16,
+                                bottom: 0
+                            }}>
+                                <Text style={styles.eventName}>TID: {this.state.parties[i].transactionID}</Text>
+                            </View>
+                            <View style={{backgroundColor: Colors.separator, height: 1,}}/>
+                            <View style={{
+                                backgroundColor: '#ffffff',
+                                height: 80,
+                                marginTop: 16,
+                                marginBottom: 16,
+                                bottom: 0
+                            }}>
+                                <Text style={styles.eventName}>Candidate: {this.state.parties[i].CandidateVoted}</Text>
+                            </View>
+                    </View>
+                );
+            }
+        }
+    };
+
     returnCards = () => {
         let cards = [];
         for (let i = 0; i < this.state.parties.length; i++) {
             cards.push(
                 <CountCard key={i}
-                           name={this.state.parties[i].party}
-                           count={this.state.parties[i].count}
+                           ID={this.state.parties[i].ID}
+                           timestamp={this.state.parties[i].timestamp}
+                           transactionID={this.state.parties[i].transactionID}
                 />
             )
         }
@@ -62,21 +116,7 @@ export default class Count extends Component {
         else if (this.state.page === 'Count') {
             return (
                 <View style={styles.container}>
-                    <View style={styles.eventCard}>
-                        <View>
-                            <Text style={styles.eventName}>Your Timestamp </Text>
-                            <View style={{backgroundColor: Colors.separator, height: 1,}}/>
-                            <View style={{
-                                backgroundColor: '#ffffff',
-                                height: 80,
-                                marginTop: 16,
-                                marginBottom: 16,
-                                bottom: 0
-                            }}>
-                                <Text style={styles.eventName2}>{this.props.timestamp}</Text>
-                            </View>
-                        </View>
-                    </View>
+                    {this.setUser()}
                     <View style={{backgroundColor: Colors.separator, height: 1,}}/>
                     <ScrollView>
                         {this.returnCards()}
@@ -109,15 +149,15 @@ const styles = StyleSheet.create({
     },
     eventName: {
         color: Colors.teal,
-        fontSize: 30,
+        fontSize: 20,
         paddingTop: 16,
-        paddingBottom: 0,
+        paddingBottom: 2,
     },
     eventName2: {
         color: Colors.teal,
-        fontSize: 25,
+        fontSize: 12,
         paddingTop: 8,
-        paddingBottom: 0,
+        paddingBottom: 2,
     },
     eventCard: {
         backgroundColor: '#ffffff',
@@ -130,7 +170,7 @@ const styles = StyleSheet.create({
         elevation: 4,
         borderRadius: 4,
         width: Dimensions.get('window').width - 32,
-        height: 200,
+        height: 400,
         justifyContent: 'center'
     },
 });

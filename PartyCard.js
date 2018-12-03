@@ -4,11 +4,13 @@ import {StyleSheet, Text, View, Dimensions, Button} from 'react-native';
 const Colors = require('./Colors');
 
 export default class PartyCard extends Component {
-    state = {
-        activities: null,
-        voted: false
-    };
-
+    constructor(props) {
+        super(props);
+        this.state = {
+            activities: null,
+            voted: false
+        };
+    }
 
     render() {
         return (
@@ -24,10 +26,10 @@ export default class PartyCard extends Component {
                         marginBottom: 16,
                         bottom: 0
                     }}>
-                    <Button style={styles.button}
-                            title={'Vote for ' + this.props.name}
-                            onPress={this.props.vote.bind(this, this.props.name)}
-                            disabled={this.props.ButtonDisabled}/>
+                        <Button style={styles.button}
+                                title={'Vote for ' + this.props.name}
+                                onPress={this.props.vote.bind(this, this.props.name)}
+                                disabled={this.props.ButtonDisabled}/>
                     </View>
 
                 </View>
